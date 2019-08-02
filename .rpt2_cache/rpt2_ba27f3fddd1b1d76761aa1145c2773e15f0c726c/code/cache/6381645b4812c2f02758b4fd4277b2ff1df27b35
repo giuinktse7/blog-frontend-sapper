@@ -1,0 +1,1 @@
+{"code":"import { writable } from \"svelte/store\";\r\nexport var userStore = writable(null);\r\nexport var authStore = writable(null);\r\n","references":["C:/Users/giuin/Desktop/dev/custom-blog/frontend-sapper/node_modules/svelte/store/index.d.ts"]}

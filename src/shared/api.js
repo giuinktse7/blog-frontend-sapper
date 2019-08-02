@@ -15,6 +15,10 @@ export async function refreshToken() {
     .catch(err => "You do not have access to this resource.")
 }
 
+export async function getUser() {
+  return await instance.get("get-user", { withCredentials: true })
+}
+
 export async function getSecret() {
   const res = await instance
     .get("secret", { withCredentials: true })
