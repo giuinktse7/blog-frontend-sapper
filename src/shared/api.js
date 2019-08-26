@@ -2,11 +2,8 @@ import axios from "axios"
 
 const instance = axios.create({ baseURL: "http://localhost:8080" })
 
-export const getPosts = () => {
-  instance
-    .get("posts", { withCredentials: true })
-    .then(res => console.log(res))
-    .catch(err => console.log(err))
+export const getPosts = async () => {
+  return await instance.get("posts", { withCredentials: true })
 }
 
 export async function refreshToken() {

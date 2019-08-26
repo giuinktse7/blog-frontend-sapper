@@ -1,45 +1,41 @@
 <script context="module">
-  import { getPosts, refreshToken, getSecret, getUser } from "../shared/api.js";
+  import { getPosts, refreshToken, getSecret } from "../shared/api.js";
   import {
     getCookie,
     SessionCookie,
     AccessCookie,
     deleteCookie
   } from "../cookie.js";
-
-  export async function preload({ params, query }) {}
 </script>
 
 <script>
   import { userStore } from "../stores/user.js";
+  import { authenticateUser } from "../auth/user.js";
   import { goto } from "@sapper/app";
   import { onMount } from "svelte";
+
+  const isEmpty = x => x.length === 0;
+
+  const locale = "en-GB";
+  const formatDate = dateString =>
+    new Date(Date.parse(dateString)).toLocaleDateString(locale);
+
+  let user = null;
+  let posts = [];
 
   onMount(() => {
     if (!getCookie(SessionCookie)) {
       goto("login");
     }
+
+    getPosts()
+      .then(({ data }) => (posts = data))
+      .catch(err => console.log("Error", err));
   });
 
-  let user = null;
   const unsubscribeUser = userStore.subscribe(u => (user = u));
-  if (!user) {
-    console.log("No user");
+  authenticateUser();
 
-    getUser()
-      .then(res => {
-        console.log(res.statusCode);
-
-        userStore.set(res.data);
-      })
-      .catch(err => {
-        console.log("In error");
-
-        goto("login");
-      });
-  }
-
-  // const posts = await getPosts();
   // const token = await refreshToken();
   // const res = await getSecret();
 
@@ -66,12 +62,17 @@
     max-width: 70%;
     padding: 2rem 0 3.5rem 0;
     margin: auto;
-    margin-top: 5rem;
+    margin-top: 8rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     border: none;
     border-radius: 4px;
+  }
+
+  .post {
+    max-width: 700px;
+    margin: 3rem auto;
   }
 
   button {
@@ -80,6 +81,7 @@
     border-radius: 1.5rem;
     box-shadow: none;
     border: none;
+    width: 200px;
     background: $violet-red;
     padding: 0.75rem;
     color: white;
@@ -97,11 +99,17 @@
   <title>Dashboard</title>
 </svelte:head>
 
-{#if !user}
-
-{:else}
+{#if user}
   <div class="container">
     <p>Welcome, {username}!</p>
     <button on:click={logout}>Log out</button>
   </div>
 {/if}
+
+{#each posts as post}
+  <div class="post container" key={post.id}>
+    <h1>{post.title}</h1>
+    <p>{formatDate(post.creationDate)}</p>
+    <p>{post.content}</p>
+  </div>
+{/each}

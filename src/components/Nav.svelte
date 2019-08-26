@@ -1,11 +1,20 @@
 <script>
+  import { userStore } from "../stores/user.js";
+  import { authenticateUser } from "../auth/user.js";
+
   export let segment;
+
+  let user = null;
+  $: hideLogin = user && user !== null;
+
+  const unsubscribeUser = userStore.subscribe(u => (user = u));
+  authenticateUser();
 
   /*
   for the blog link, we're using rel=prefetch so that Sapper prefetches
   the blog data when we hover over the link or tap it on a touchscreen
   */
-  const items = [
+  let items = [
     { segment: undefined, href: ".", text: "Home" },
     { segment: "about", href: "about", text: "About" },
     {
@@ -14,7 +23,11 @@
       text: "Blog",
       extra: { rel: "prefetch" }
     },
-    { segment: "login", href: "login", text: "Login" },
+    {
+      segment: "login",
+      href: "login",
+      text: "Login"
+    },
     {
       segment: "dashboard",
       href: "dashboard",
@@ -22,12 +35,19 @@
       rel: "prefetch"
     }
   ];
+
+  $: loginItemFilter = navItem => !(user && navItem.segment === "login");
+
+  $: filteredItems = items.filter(loginItemFilter);
 </script>
 
 <style type="text/scss" lang="scss">
   @import "../variables.scss";
 
   nav {
+    position: fixed;
+    top: 0;
+    width: 100vw;
     border-bottom: 1px solid rgba(255, 62, 0, 0.1);
     font-weight: 300;
     padding: 0 1em;
@@ -113,7 +133,7 @@
 
 <nav>
   <ul>
-    {#each items as item}
+    {#each filteredItems as item}
       <li>
         <a
           class={segment === item.segment ? 'selected' : ''}

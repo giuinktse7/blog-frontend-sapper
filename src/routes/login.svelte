@@ -3,7 +3,7 @@
   import { loginUser } from "../shared/auth.js";
   import { userStore } from "../stores/user.js";
   import { goto } from "@sapper/app";
-  let mail = "";
+  let username = "";
   let password = "";
 
   const Status = {
@@ -12,18 +12,18 @@
   };
 
   const StatusMessage = {
-    none: "",
-    incorrectCredentials: "Incorrect username or password.",
-    serverNotResponding: "The server did not respond."
+    None: "",
+    IncorrectCredentials: "Incorrect username or password.",
+    ServerNotResponding: "The server did not respond."
   };
 
   let status = Status.ok;
-  let statusMessage = StatusMessage.none;
+  let statusMessage = StatusMessage.None;
 
   const performLogin = e => {
     e.preventDefault();
     loginUser({
-      username: mail,
+      username,
       password
     })
       .then(({ data: user }) => {
@@ -32,12 +32,12 @@
           goto("dashboard");
         } else {
           status = Status.error;
-          statusMessage = StatusMessage.incorrectCredentials;
+          statusMessage = StatusMessage.IncorrectCredentials;
         }
       })
       .catch(e => {
         status = Status.error;
-        statusMessage = StatusMessage.serverNotResponding;
+        statusMessage = StatusMessage.ServerNotResponding;
       });
   };
 </script>
@@ -113,7 +113,7 @@
   <h2>Welcome</h2>
 
   <form class="form" on:submit={performLogin}>
-    <Input bind:value={mail} placeholder="Email" />
+    <Input bind:value={username} placeholder="Username" />
 
     <Input bind:value={password} type="password" placeholder="Password" />
     <p class={`status ${status}`}>{statusMessage}</p>
